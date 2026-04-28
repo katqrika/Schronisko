@@ -10,5 +10,3 @@
 * Panel informacyjny: Ogłoszenia wydawane przez praconików dla wolonatriuszy
 * Panel pracownika: Spis zwierząt i ich dane, zarządznie statusem zwierzaka
 
-### Narzędzia
-Baza stoi na Supabase (PostgreSQL), a frontend w React Native
