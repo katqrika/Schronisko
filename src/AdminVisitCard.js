@@ -6,7 +6,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 
 // ✅ ZMIEŃ TYLKO TEN ADRES — wpisz IP swojego komputera (tego gdzie stoi XAMPP/PHP)
-const API_URL = "http://studenthub.ukw.edu.pl/~Student_800/get_admin_visits.php";
+const API_URL = "https://www.schronisko.w5.lt/get_admin_visits.php";
 
 export default function AdminScheduleScreen() {
   const [scheduleData, setScheduleData] = useState([]);

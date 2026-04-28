@@ -11,8 +11,8 @@ export default function CalendarScreen({ navigation }) {
 
   const IP_ADDRESS = '192.168.201.222';
   const LOGGED_USER_ID = 1;
-  const API_URL = `http://studenthub.ukw.edu.pl/~Student_800/get_user_visits.php?userId=${LOGGED_USER_ID}`;
-  const BASE_URL = `http://studenthub.ukw.edu.pl/~Student_800/`;
+  const API_URL = `https://www.schronisko.w5.lt/get_user_visits.php?userId=${LOGGED_USER_ID}`;
+  const BASE_URL = `https://www.schronisko.w5.lt/`;
 
   // Pobieramy dzisiejszą datę, aby zablokować kalendarz wstecz
   const today = new Date().toISOString().split('T')[0];

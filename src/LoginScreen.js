@@ -25,7 +25,7 @@ export default function LoginScreen({ navigation }) {
     }
 
     // Upewnij się, że ten adres IP to adres IPv4 Twojego komputera!
-    const API_URL = 'https://studenthub.ukw.edu.pl/php/student_800/php_php/login.php';
+    const API_URL = 'https://www.schronisko.w5.lt/login.php';
 
     try {
       const response = await fetch(API_URL, {
@@ -39,8 +39,12 @@ export default function LoginScreen({ navigation }) {
       try {
         result = JSON.parse(rawText);
       } catch (e) {
-        throw new Error("Serwer nie zwrócił poprawnego JSON-a.");
-      }
+  // Najpierw wypisujemy to, co faktycznie przyszło z serwera
+  console.log("To co przyszło z serwera:", rawText); 
+  
+  // Dopiero potem rzucamy błąd, który przerwie działanie i pokaże Alert
+  throw new Error("Serwer nie zwrócił poprawnego JSON-a.");
+}
 
       if (result.status === "success") {
         Alert.alert("Sukces", "Witaj " + result.user.name);

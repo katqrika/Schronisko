@@ -22,11 +22,11 @@ export default function DetailsScreen({ route, navigation }) {
   const LOGGED_USER_ID = 1; 
 
   const API_URLS = {
-    details: `http://studenthub.ukw.edu.pl/~Student_800/get_animal_details.php?id=${petId}`,
-    toggle: `http://studenthub.ukw.edu.pl/~Student_800/toggle_favorite.php`,
-    check: `http://studenthub.ukw.edu.pl/~Student_800/check_favorite.php?userId=${LOGGED_USER_ID}&animalId=${petId}`,
-    addVisit: `http://studenthub.ukw.edu.pl/~Student_800/add_visit.php`,
-    images: `http://studenthub.ukw.edu.pl/~Student_800/` 
+    details: `https://www.schronisko.w5.lt/get_animal_details.php?id=${petId}`,
+    toggle: `https://www.schronisko.w5.lt/toggle_favorite.php`,
+    check: `https://www.schronisko.w5.lt/check_favorite.php?userId=${LOGGED_USER_ID}&animalId=${petId}`,
+    addVisit: `https://www.schronisko.w5.lt/add_visit.php`,
+    images: `https://www.schronisko.w5.lt/` 
   };
 
   useEffect(() => { loadData(); }, [petId]);

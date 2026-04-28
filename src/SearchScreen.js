@@ -10,8 +10,8 @@ export default function SearchScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const API_URL = `http://studenthub.ukw.edu.pl/~Student_800/get_animal.php`;
-  const BASE_IMAGE_URL = `http://studenthub.ukw.edu.pl/~Student_800/uploads/`; 
+  const API_URL = `https://www.schronisko.w5.lt/get_animal.php`;
+  const BASE_IMAGE_URL = `https://www.schronisko.w5.lt/uploads/`; 
 
   const fetchAnimals = async () => {
     try {

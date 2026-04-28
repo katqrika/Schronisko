@@ -52,7 +52,7 @@ export default function AddAnimalScreen({ navigation }) {
     }
 
     setLoading(true);
-    const targetUrl = `http://studenthub.ukw.edu.pl/~Student_800/add_animal.php`;
+    const targetUrl = `https://www.schronisko.w5.lt/add_animal.php`;
 
     try {
       const fileName = name.toLowerCase().trim().replace(/\s+/g, '') + '.jpg';

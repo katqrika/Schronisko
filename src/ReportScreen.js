@@ -23,7 +23,7 @@ export default function ReportScreen({ navigation, route }) {
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
-    fetch(`http://studenthub.ukw.edu.pl/~Student_800/get_user_animals.php?userId=${userId}`)
+    fetch(`https://www.schronisko.w5.lt/get_user_animals.php?userId=${userId}`)
       .then(res => res.json())
       .then(data => {
         console.log("Pobrane zwierzęta:", data); // DEBUG: Sprawdź to w konsoli!
@@ -66,7 +66,7 @@ export default function ReportScreen({ navigation, route }) {
 
     setIsSending(true);
     try {
-      const response = await fetch(`http://studenthub.ukw.edu.pl/~Student_800/add_incident.php`, {
+      const response = await fetch(`https://www.schronisko.w5.lt/add_incident.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -7,48 +7,61 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  Switch,
   Alert,
   ActivityIndicator
 } from 'react-native';
-import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function AddAnnouncement({ navigation }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [priority, setPriority] = useState('low');
-  const [pushEnabled, setPushEnabled] = useState(true);
-  const [pinned, setPinned] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handlePublish = async () => {
+    // Walidacja pól
     if (!title.trim() || !content.trim()) {
-      Alert.alert("Błąd", "Tytuł i treść ogłoszenia są wymagane!");
+      Alert.alert("Błąd", "Wypełnij tytuł i treść ogłoszenia!");
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch('http://studenthub.ukw.edu.pl/~Student_800/add_announcement.php', {
+      const response = await fetch('https://www.schronisko.w5.lt/add_announcment.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Accept': 'application/json',
+          'Content-Type': 'application/json' 
+        },
         body: JSON.stringify({
-          title,
-          content,
-          priority,
-          pinned: pinned ? 1 : 0
+          title: title.trim(),
+          content: content.trim(),
+          priority: priority,
+          pinned: 0 
         }),
       });
 
-      const result = await response.json();
-      if (result.status === 'success') {
-        Alert.alert("Sukces", "Ogłoszenie opublikowane!", [{ text: "OK", onPress: () => navigation.goBack() }]);
-      } else {
-        Alert.alert("Błąd", result.message || "Błąd serwera");
-      }
+      const responseText = await response.text();
+      
+      try {
+        const result = JSON.parse(responseText);
+        if (result.status === 'success') {
+          Alert.alert("Sukces", "Ogłoszenie zostało opublikowane!", [
+            { text: "Super", onPress: () => navigation.goBack() }
+          ]);
+        } else {
+          Alert.alert("Błąd serwera", result.message || "Coś poszło nie tak.");
+        }
+      } catch (e) {
+  console.log("Surowa odpowiedź serwera:", responseText);
+  // Dodaj to poniżej, aby zobaczyć błąd na telefonie:
+  Alert.alert("DEBUG - Co wysłał serwer:", responseText.substring(0, 200)); 
+  Alert.alert("Błąd", "Serwer zwrócił niepoprawny format danych.");
+}
+
     } catch (error) {
-      Alert.alert("Błąd", "Brak połączenia z serwerem.");
+      Alert.alert("Błąd", "Brak połączenia z internetem lub serwerem.");
     } finally {
       setLoading(false);
     }
@@ -56,6 +69,7 @@ export default function AddAnnouncement({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={24} color="#0f5238" />
@@ -70,50 +84,66 @@ export default function AddAnnouncement({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollPadding}>
         <View style={styles.titleSection}>
           <Text style={styles.mainTitle}>Nowe Ogłoszenie</Text>
-          <Text style={styles.subtitle}>Stwórz nową wiadomość dla zespołu.</Text>
+          <Text style={styles.subtitle}>Wpisz szczegóły nowej wiadomości.</Text>
         </View>
 
+        {/* Input Tytułu */}
         <View style={styles.editorCard}>
-          <Text style={styles.inputLabel}>Tytuł Ogłoszenia</Text>
+          <Text style={styles.inputLabel}>Tytuł</Text>
           <TextInput
             style={styles.titleInput}
-            placeholder="Wpisz tytuł..."
+            placeholder="Tytuł wiadomości..."
             value={title}
             onChangeText={setTitle}
+            maxLength={100}
           />
         </View>
 
+        {/* Input Treści */}
         <View style={styles.editorCard}>
-          <Text style={styles.inputLabel}>Treść Ogłoszenia</Text>
+          <Text style={styles.inputLabel}>Treść</Text>
           <TextInput
             style={styles.contentInput}
-            placeholder="Opisz szczegóły..."
+            placeholder="O czym chcesz poinformować?"
             multiline
             value={content}
             onChangeText={setContent}
+            textAlignVertical="top"
           />
         </View>
 
+        {/* Wybór Priorytetu */}
         <View style={styles.bentoCard}>
-          <Text style={styles.inputLabel}>Typ ogłoszenia</Text>
+          <Text style={styles.inputLabel}>Priorytet</Text>
           <View style={styles.priorityRow}>
-            <TouchableOpacity style={[styles.priorityBtn, priority === 'low' && {backgroundColor: '#b1f0ce'}]} onPress={() => setPriority('low')}>
-              <Text style={[styles.priorityBtnText, priority === 'low' && {color: '#002114'}]}>NORMALNE</Text>
+            <TouchableOpacity 
+              style={[styles.priorityBtn, priority === 'low' && {backgroundColor: '#b1f0ce'}]} 
+              onPress={() => setPriority('low')}
+            >
+              <Text style={[styles.priorityBtnText, priority === 'low' && {color: '#002114'}]}>NORMALNY</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.priorityBtn, priority === 'high' && {backgroundColor: '#ffdad6'}]} onPress={() => setPriority('high')}>
+            <TouchableOpacity 
+              style={[styles.priorityBtn, priority === 'high' && {backgroundColor: '#ffdad6'}]} 
+              onPress={() => setPriority('high')}
+            >
               <Text style={[styles.priorityBtnText, priority === 'high' && {color: '#93000a'}]}>PILNY</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.submitWrapper} onPress={handlePublish} disabled={loading}>
+        {/* Przycisk Wysyłania */}
+        <TouchableOpacity 
+          style={styles.submitWrapper} 
+          onPress={handlePublish} 
+          disabled={loading}
+        >
           <LinearGradient colors={['#0f5238', '#2d6a4f']} style={styles.submitBtn}>
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Ionicons name="send" size={20} color="#fff" style={{marginRight: 8}} />
-                <Text style={styles.submitBtnText}>Opublikuj Ogłoszenie</Text>
+                <Ionicons name="send" size={20} color="#fff" style={{marginRight: 10}} />
+                <Text style={styles.submitBtnText}>Opublikuj teraz</Text>
               </View>
             )}
           </LinearGradient>
@@ -132,21 +162,17 @@ const styles = StyleSheet.create({
   avatarMini: { width: 35, height: 35, borderRadius: 17.5, backgroundColor: '#f4f2ff' },
   scrollPadding: { paddingHorizontal: 24, paddingBottom: 40 },
   titleSection: { marginTop: 24, marginBottom: 25 },
-  badge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#f4f2ff', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginBottom: 12 },
-  badgeText: { fontSize: 10, fontWeight: '800', color: '#895100', letterSpacing: 1 },
-  mainTitle: { fontSize: 32, fontWeight: '900', color: '#161a32' },
+  mainTitle: { fontSize: 30, fontWeight: '900', color: '#161a32' },
   subtitle: { fontSize: 14, color: '#707973', marginTop: 5 },
   editorCard: { backgroundColor: '#f4f2ff', padding: 20, borderRadius: 28, marginBottom: 15 },
-  inputLabel: { fontSize: 11, fontWeight: '900', color: '#0f5238', textTransform: 'uppercase', marginBottom: 12 },
-  titleInput: { backgroundColor: '#fff', padding: 16, borderRadius: 18, fontSize: 18, fontWeight: '700' },
-  contentInput: { backgroundColor: '#fff', padding: 16, borderRadius: 18, fontSize: 15, minHeight: 150 },
+  inputLabel: { fontSize: 11, fontWeight: '900', color: '#0f5238', textTransform: 'uppercase', marginBottom: 10 },
+  titleInput: { backgroundColor: '#fff', padding: 16, borderRadius: 18, fontSize: 17, fontWeight: '600' },
+  contentInput: { backgroundColor: '#fff', padding: 16, borderRadius: 18, fontSize: 15, minHeight: 120 },
   bentoCard: { backgroundColor: '#f4f2ff', padding: 20, borderRadius: 28, marginBottom: 15 },
   priorityRow: { flexDirection: 'row', gap: 10 },
   priorityBtn: { flex: 1, backgroundColor: '#fff', paddingVertical: 15, borderRadius: 20, alignItems: 'center' },
-  priorityBtnText: { fontSize: 10, fontWeight: '900' },
-  settingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  settingText: { fontSize: 14, fontWeight: '600' },
+  priorityBtnText: { fontSize: 11, fontWeight: '900' },
   submitWrapper: { marginTop: 10, borderRadius: 22, overflow: 'hidden' },
-  submitBtn: { paddingVertical: 20, alignItems: 'center', justifyContent: 'center' },
-  submitBtnText: { color: '#fff', fontSize: 18, fontWeight: '900' }
+  submitBtn: { paddingVertical: 18, alignItems: 'center', justifyContent: 'center' },
+  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '900' }
 });

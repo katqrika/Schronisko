@@ -6,27 +6,38 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import BottomNav from './BottomNav'; 
 
-// --- Komponent dla rozwijanego ogłoszenia ---
+// --- Komponent ogłoszenia z poprawioną logiką rozwijania ---
 const AnnouncementItem = ({ item }) => {
   const [expanded, setExpanded] = useState(false);
+  
+  // Obsługa kluczy z dużej i małej litery dla bezpieczeństwa
+  const title = item.Title || item.title || "Ogłoszenie";
+  const status = item.Status || item.status;
+  const content = item.Content || item.content || "";
 
   return (
     <TouchableOpacity 
-      activeOpacity={0.8}
+      activeOpacity={0.7}
       onPress={() => setExpanded(!expanded)} 
       style={[styles.infoCard, { marginBottom: 15 }]}
     >
       <View style={styles.infoTop}>
-        <Text style={styles.infoTitle} numberOfLines={1}>{item.Title}</Text>
-        {item.Status && item.Status.trim() !== "" && (
+        <Text style={styles.infoTitle} numberOfLines={1}>{title}</Text>
+        {status && status.trim() !== "" && (
           <View style={styles.urgentBadge}>
-            <Text style={styles.urgentText}>{item.Status.toUpperCase()}</Text>
+            <Text style={styles.urgentText}>{status.toUpperCase()}</Text>
           </View>
         )}
       </View>
       
-      <Text style={styles.infoDesc} numberOfLines={expanded ? 0 : 2}>
-        {item.Content}
+      {/* ZMIANA: expanded ? undefined : 2 
+          W React Native 'undefined' lub '0' pozwala na pełne rozwinięcie tekstu
+      */}
+      <Text 
+        style={styles.infoDesc} 
+        numberOfLines={expanded ? undefined : 2}
+      >
+        {content}
       </Text>
       
       <View style={styles.expandRow}>
@@ -38,34 +49,31 @@ const AnnouncementItem = ({ item }) => {
   );
 };
 
-// --- Główny ekran HomeScreen ---
 export default function HomeScreen({ navigation, route }) {
   const [userData, setUserData] = useState({ Name: '...', Login: '' });
   const [animals, setAnimals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [announcements, setAnnouncements] = useState([]);
-  
   const [visitCount, setVisitCount] = useState(0);
   const [reportCount, setReportCount] = useState(0);
 
-  const IP_ADDRESS = '192.168.201.222'; 
   const userId = route.params?.userId || 1; 
 
   useEffect(() => {
-    // 1. Dane użytkownika
-    fetch(`https://studenthub.ukw.edu.pl/php/student_800/php_php/get_user.php?id=${userId}`)
+    // Dane użytkownika
+    fetch(`https://www.schronisko.w5.lt/get_user.php?id=${userId}`)
       .then(res => res.json())
       .then(data => setUserData(data))
       .catch(err => console.log("Błąd user:", err));
 
-    // 2. Ogłoszenia
-    fetch(`https://studenthub.ukw.edu.pl/php/student_800/php_php/get_announcements.php`)
+    // Ogłoszenia
+    fetch(`https://www.schronisko.w5.lt/get_announcements.php`)
       .then(res => res.json())
       .then(data => setAnnouncements(Array.isArray(data) ? data : []))
       .catch(err => console.log("Błąd ogłoszeń:", err));
 
-    // 3. Statystyki
-    fetch(`https://studenthub.ukw.edu.pl/php/student_800/php_php/get_user_stats.php?userId=${userId}`)
+    // Statystyki
+    fetch(`https://www.schronisko.w5.lt/get_user_stats.php?userId=${userId}`)
       .then(res => res.json())
       .then(data => {
         setVisitCount(data.visitCount || 0);
@@ -73,8 +81,8 @@ export default function HomeScreen({ navigation, route }) {
       })
       .catch(err => console.log("Błąd statystyk:", err));
 
-    // 4. Ulubieńcy
-    fetch(`https://studenthub.ukw.edu.pl/php/student_800/php_php/get_favourites.php?userId=${userId}`)
+    // Ulubione
+    fetch(`https://www.schronisko.w5.lt/get_favourites.php?userId=${userId}`)
       .then(res => res.json())
       .then(data => {
         setAnimals(Array.isArray(data) ? data : []);
@@ -86,34 +94,24 @@ export default function HomeScreen({ navigation, route }) {
       });
   }, [userId]);
 
-  // Funkcja wylogowania
   const handleLogout = () => {
-    Alert.alert(
-      "Wylogowanie",
-      "Czy na pewno chcesz się wylogować?",
-      [
-        { text: "Anuluj", style: "cancel" },
-        { 
-          text: "Wyloguj", 
-          onPress: () => navigation.navigate('Login'), // Upewnij się, że masz ekran 'Login' w nawigacji
-          style: "destructive" 
-        }
-      ]
-    );
+    Alert.alert("Wylogowanie", "Czy na pewno chcesz się wylogować?", [
+      { text: "Anuluj", style: "cancel" },
+      { text: "Wyloguj", onPress: () => navigation.navigate('Login'), style: "destructive" }
+    ]);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header z przyciskiem wylogowania (drzwiczki) */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.avatarWrapper}>
             <Image 
-              source={{ uri: `https://ui-avatars.com/api/?name=${userData.Name || 'U'}&background=0f5238&color=fff` }} 
+              source={{ uri: `https://ui-avatars.com/api/?name=${userData.Name || userData.name || 'U'}&background=0f5238&color=fff` }} 
               style={styles.avatar} 
             />
           </View>
-          <Text style={styles.headerTitle}>{userData.Login || "Wolontariusz"}</Text>
+          <Text style={styles.headerTitle}>{userData.Login || userData.login || "Wolontariusz"}</Text>
         </View>
         <TouchableOpacity style={styles.iconBtn} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={26} color="#e11d48" />
@@ -122,13 +120,11 @@ export default function HomeScreen({ navigation, route }) {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* Welcome */}
         <View style={styles.welcomeBox}>
-          <Text style={styles.welcomeSub}>WITAJ, {userData.Name?.toUpperCase()}!</Text>
+          <Text style={styles.welcomeSub}>WITAJ, {(userData.Name || userData.name || 'U').toUpperCase()}!</Text>
           <Text style={styles.welcomeTitle}>Idziemy na spacer?</Text>
         </View>
 
-        {/* Stats Section */}
         <View style={styles.statsRow}>
           <View style={styles.statCardMain}>
             <Ionicons name="time-outline" size={32} color="#0f5238" />
@@ -139,7 +135,6 @@ export default function HomeScreen({ navigation, route }) {
           </View>
 
           <View style={styles.statColumn}>
-            {/* Zielony bloczek - Wizyty */}
             <View style={styles.statSmallGreen}>
               <Ionicons name="heart" size={20} color="#fff" />
               <View style={styles.statTextContainer}>
@@ -149,7 +144,6 @@ export default function HomeScreen({ navigation, route }) {
               </View>
             </View>
 
-            {/* Pomarańczowy bloczek - Raporty */}
             <View style={styles.statSmallOrange}>
               <Ionicons name="document-text" size={20} color="#663b00" />
               <View style={styles.statTextContainer}>
@@ -161,7 +155,6 @@ export default function HomeScreen({ navigation, route }) {
           </View>
         </View>
 
-        {/* Ulubieńcy */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Ulubieńcy</Text>
         </View>
@@ -170,31 +163,54 @@ export default function HomeScreen({ navigation, route }) {
           {loading ? (
             <ActivityIndicator color="#0f5238" size="large" style={{ marginLeft: 20 }} />
           ) : animals.length > 0 ? (
-            animals.map((animal) => (
-              <TouchableOpacity 
-                key={animal.ID} 
-                style={styles.animalCard}
-                onPress={() => navigation.navigate('Details', { petId: animal.ID })}
-              >
-                <View style={styles.imageContainer}>
-                  <Image 
-                    source={{ uri: `https://studenthub.ukw.edu.pl/php/student_800/php_php/${animal.Photo}` }} 
-                    style={styles.cardImg} 
-                    resizeMode="cover"
-                  />
-                  <View style={styles.statusBadge}>
-                    <Text style={styles.statusText}>Ulubiony</Text>
+            animals.map((animal) => {
+              const name = animal.Name || animal.name || "Bez imienia";
+              const photo = animal.Photo || animal.photo;
+              const id = animal.ID || animal.id;
+
+              let imageUrl = "";
+              if (photo) {
+                if (photo.startsWith('uploads/')) {
+                  imageUrl = `https://www.schronisko.w5.lt/${photo}`;
+                } else if (photo.startsWith('http')) {
+                  imageUrl = photo;
+                } else {
+                  imageUrl = `https://www.schronisko.w5.lt/uploads/${photo}`;
+                }
+              }
+
+              return (
+                <TouchableOpacity 
+                  key={id} 
+                  style={styles.animalCard}
+                  onPress={() => navigation.navigate('Details', { petId: id })}
+                >
+                  <View style={styles.imageContainer}>
+                    {photo ? (
+                      <Image 
+                        source={{ uri: imageUrl }}
+                        style={styles.cardImg} 
+                        resizeMode="cover"
+                        onError={(e) => console.log("Błąd ładowania:", imageUrl)}
+                      />
+                    ) : (
+                      <View style={styles.placeholderImg}>
+                        <Ionicons name="paw" size={40} color="#cbd5e1" />
+                      </View>
+                    )}
+                    <View style={styles.statusBadge}>
+                      <Text style={styles.statusText}>Ulubiony</Text>
+                    </View>
                   </View>
-                </View>
-                <Text style={styles.cardName}>{animal.Name}</Text>
-              </TouchableOpacity>
-            ))
+                  <Text style={styles.cardName}>{name}</Text>
+                </TouchableOpacity>
+              );
+            })
           ) : (
             <Text style={styles.emptyText}>Nie masz jeszcze ulubionych zwierząt.</Text>
           )}
         </ScrollView>
 
-        {/* Panel Informacyjny */}
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>Panel Informacyjny</Text>
           {announcements.length > 0 ? (
@@ -216,50 +232,60 @@ export default function HomeScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fbf8ff' },
-  header: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    paddingHorizontal: 20, 
-    paddingVertical: 15,
-    backgroundColor: '#fff', 
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0'
-  },
+  header: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 15, backgroundColor: '#fff', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   avatarWrapper: { width: 40, height: 40, borderRadius: 20, overflow: 'hidden' },
   avatar: { width: '100%', height: '100%' },
   headerTitle: { fontSize: 18, fontWeight: '800', color: '#0f5238' },
-  iconBtn: { 
-    padding: 8, 
-    backgroundColor: '#fff1f2', 
-    borderRadius: 12 
-  },
+  iconBtn: { padding: 8, backgroundColor: '#fff1f2', borderRadius: 12 },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 110 },
   welcomeBox: { marginVertical: 30 },
   welcomeSub: { fontSize: 13, fontWeight: '600', color: '#895100', letterSpacing: 1 },
   welcomeTitle: { fontSize: 34, fontWeight: '800', color: '#161a32' },
-  
   statsRow: { flexDirection: 'row', gap: 15, marginBottom: 40 },
   statCardMain: { flex: 1.2, backgroundColor: '#f4f2ff', borderRadius: 20, padding: 20, justifyContent: 'space-between', minHeight: 140 },
   statNumBig: { fontSize: 32, fontWeight: '800', color: '#161a32' },
   statLabel: { color: '#404943', fontWeight: '500' },
   statColumn: { flex: 1, gap: 12 },
-  
   statSmallGreen: { flex: 1, backgroundColor: '#0f5238', borderRadius: 15, paddingHorizontal: 12, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 8, overflow: 'hidden' },
   statSmallOrange: { flex: 1, backgroundColor: '#fd9d1a', borderRadius: 15, paddingHorizontal: 12, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 8, overflow: 'hidden' },
-  
   statTextContainer: { flex: 1 }, 
   statSmallNum: { color: '#fff', fontWeight: '700', fontSize: 13 },
   statSmallNumOrange: { color: '#663b00', fontWeight: '700', fontSize: 13 },
-
   sectionHeader: { marginBottom: 20 },
   sectionTitle: { fontSize: 22, fontWeight: '700', color: '#161a32' },
   horizontalRow: { marginHorizontal: -20, paddingLeft: 20, marginBottom: 40 },
   animalCard: { width: 240, marginRight: 20 },
-  imageContainer: { height: 300, borderRadius: 20, overflow: 'hidden', position: 'relative', backgroundColor: '#eee' },
-  cardImg: { width: '100%', height: '100%' },
-  statusBadge: { position: 'absolute', top: 15, right: 15, backgroundColor: '#b1f0ce', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 },
+  imageContainer: { 
+    height: 300, 
+    borderRadius: 20, 
+    overflow: 'hidden', 
+    position: 'relative', 
+    backgroundColor: '#eee', 
+    elevation: 3
+  },
+  cardImg: { 
+    width: '100%', 
+    height: '100%', 
+    zIndex: 1 
+  },
+  placeholderImg: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e2e8f0'
+  },
+  statusBadge: { 
+    position: 'absolute', 
+    top: 15, 
+    right: 15, 
+    backgroundColor: '#b1f0ce', 
+    paddingHorizontal: 12, 
+    paddingVertical: 5, 
+    borderRadius: 20,
+    zIndex: 2 
+  },
   statusText: { fontSize: 11, fontWeight: '800', color: '#002114' },
   cardName: { fontSize: 20, fontWeight: '700', color: '#161a32', marginTop: 10 },
   emptyText: { color: '#64748b', marginLeft: 20 },

@@ -26,7 +26,7 @@ export default function RegisterScreen({ navigation }) {
     }
 
     // ZMIENIONY ADRES IP
-    const API_URL = 'http://studenthub.ukw.edu.pl/~Student_800/register.php';
+    const API_URL = 'https://www.schronisko.w5.lt/register.php';
 
     try {
       const response = await fetch(API_URL, {

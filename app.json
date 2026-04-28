@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "test",
-    "slug": "test",
+    "name": "Twój pupil",
+    "slug": "Twój-pupil",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/t_dog-cat2825.jpg",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/t_dog-cat2825.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,16 +17,22 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+        "foregroundImage": "./assets/t_dog-cat2825.jpg",
+        "backgroundImage": "./assets/t_dog-cat2825.jpg",
+        "monochromeImage": "./assets/t_dog-cat2825.jpg"
+      },
+      "package": "schronisko.ukw"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/t_dog-cat2825.jpg"
     },
     "plugins": [
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6de3efb9-215a-43d2-8351-716222c56648"
+      }
+    }
   }
 }

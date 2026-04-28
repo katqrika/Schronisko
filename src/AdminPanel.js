@@ -19,7 +19,7 @@ export default function AdminPanel({ navigation }) {
       setLoading(true);
 
       // 1. Pobieranie zwierząt (zgodnie z Twoim PHP)
-      const resAnim = await fetch(`http://studenthub.ukw.edu.pl/~Student_800/get_animals.php`);
+      const resAnim = await fetch(`https://www.schronisko.w5.lt/get_animals.php`);
       const dataAnim = await resAnim.json();
       // Jeśli Twoje PHP zwraca tablicę, a nie obiekt z polem animalCount, 
       // używamy dataAnim.length
@@ -27,7 +27,7 @@ export default function AdminPanel({ navigation }) {
       setAnimalCount(count);
 
       // 2. Pobieranie statystyk (zgodnie z Twoim PHP)
-      const resStats = await fetch(`http://studenthub.ukw.edu.pl/~Student_800/get_admin_stats.php`);
+      const resStats = await fetch(`https://www.schronisko.w5.lt/get_admin_stats.php`);
       const dataStats = await resStats.json();
       setVisitCount(dataStats.visitCount || 0);
       setReportCount(dataStats.reportCount || 0);
@@ -54,7 +54,7 @@ export default function AdminPanel({ navigation }) {
             source={{ uri: 'https://ui-avatars.com/api/?name=Admin&background=0f5238&color=fff' }} 
             style={styles.avatar} 
           />
-          <Text style={styles.brandTitle}>Digital Sanctuary</Text>
+          <Text style={styles.brandTitle}>Twój pupil</Text>
         </View>
         <TouchableOpacity onPress={fetchData}>
           <Ionicons name="refresh" size={24} color="#0f5238" />
