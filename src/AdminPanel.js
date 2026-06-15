@@ -41,6 +41,13 @@ export default function AdminPanel({ navigation }) {
 
   useEffect(() => {
     fetchData();
+
+    const handleLogout = () => {
+        Alert.alert("Wylogowanie", "Czy na pewno chcesz się wylogować?", [
+          { text: "Anuluj", style: "cancel" },
+          { text: "Wyloguj", onPress: () => navigation.navigate('Login'), style: "destructive" }
+        ]);
+      };
   }, []);
 
   return (
@@ -58,6 +65,9 @@ export default function AdminPanel({ navigation }) {
         </View>
         <TouchableOpacity onPress={fetchData}>
           <Ionicons name="refresh" size={24} color="#0f5238" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.iconBtn} onPress={handleLogout}>
+                  <Ionicons name="log-out-outline" size={26} color="#e11d48" />
         </TouchableOpacity>
       </View>
 
